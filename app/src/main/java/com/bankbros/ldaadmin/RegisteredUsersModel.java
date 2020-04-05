@@ -10,19 +10,20 @@ public class RegisteredUsersModel implements Serializable {
     private String DateRegistered;
     private String NoticeLimit;
     private String Donatios;
+    private int notificationcount;
     private boolean UserEnabled;
-
 
     public RegisteredUsersModel() {
     }
 
-    public RegisteredUsersModel(String userName, String userEmail, String userId, String dateRegistered, String noticeLimit, String donatios, boolean userEnabled) {
+    public RegisteredUsersModel(String userName, String userEmail, String userId, String dateRegistered, String noticeLimit, String donatios, int notificationcount, boolean userEnabled) {
         UserName = userName;
         UserEmail = userEmail;
         UserId = userId;
         DateRegistered = dateRegistered;
         NoticeLimit = noticeLimit;
         Donatios = donatios;
+        this.notificationcount = notificationcount;
         UserEnabled = userEnabled;
     }
 
@@ -74,6 +75,14 @@ public class RegisteredUsersModel implements Serializable {
         Donatios = donatios;
     }
 
+    public int getNotificationcount() {
+        return notificationcount;
+    }
+
+    public void setNotificationcount(int notificationcount) {
+        this.notificationcount = notificationcount;
+    }
+
     public boolean isUserEnabled() {
         return UserEnabled;
     }
@@ -82,3 +91,4 @@ public class RegisteredUsersModel implements Serializable {
         UserEnabled = userEnabled;
     }
 }
+

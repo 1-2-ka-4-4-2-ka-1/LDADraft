@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -24,6 +25,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 
 
 /**
@@ -66,7 +70,7 @@ public class ChatsFragment extends Fragment {
         selectedHolders = new ArrayList<>();
         usersRecyclerView = v.findViewById(R.id.rv_account_holders);
         layoutManager = new LinearLayoutManager(getContext());
-        usersRecyclerViewAdapter = new HoldersRecyclerViewAdapter(getContext(),usersArrayList);
+        usersRecyclerViewAdapter = new HoldersRecyclerViewAdapter(getContext(),usersArrayList,1);
         usersRecyclerView.setLayoutManager(layoutManager);
         usersRecyclerView.setAdapter(usersRecyclerViewAdapter);
 
@@ -76,6 +80,11 @@ public class ChatsFragment extends Fragment {
             public void onHolderClicked(int Position) {
                 Intent intent = new Intent(getContext(),ChatsActivity.class);
                 intent.putExtra("obj",usersArrayList.get(Position));
+                usersArrayList.get(Position).setNotificationcount(0);
+                usersRecyclerViewAdapter.notifyItemChanged(Position);
+
+                databaseReference.child("Admin").child("usersdata").child(usersArrayList.get(Position).getUserId()).child("notificationcount").setValue(0);
+
                 startActivity(intent);
             }
 
@@ -109,6 +118,18 @@ public class ChatsFragment extends Fragment {
 
         setAdapter("");
 
+        databaseReference.child("Admin").child("usersdata").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                setAdapter("");
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
         return v;
     }
 
@@ -116,6 +137,7 @@ public class ChatsFragment extends Fragment {
 
 
         final int  searchLimit = 15;
+
 
 
 
@@ -129,8 +151,6 @@ public class ChatsFragment extends Fragment {
 
 
                 for(DataSnapshot userSnapShot : dataSnapshot.getChildren()){
-
-
                     if(!val.trim().equals("")){
                         if(userSnapShot.child("userEmail").getValue().toString().toLowerCase().contains(val.toLowerCase())  || userSnapShot.child("userName").getValue().toString().contains(val)){
 
@@ -150,7 +170,9 @@ public class ChatsFragment extends Fragment {
                         break;
 
                 }
+                Collections.sort(usersArrayList,new CustomComparator());
                 usersRecyclerViewAdapter.notifyDataSetChanged();
+                Log.i("sorting", "onDataChange: "+usersArrayList.get(0).getNotificationcount());
             }
 
             @Override
@@ -159,5 +181,13 @@ public class ChatsFragment extends Fragment {
             }
         });
 
+    }
+
+
+    public class CustomComparator implements Comparator<RegisteredUsersModel> {
+        @Override
+        public int compare(RegisteredUsersModel o1, RegisteredUsersModel o2) {
+            return (o2.getNotificationcount())-(o1.getNotificationcount());
+        }
     }
 }

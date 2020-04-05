@@ -5,6 +5,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Switch;
@@ -69,7 +71,22 @@ public class UserDetailsActivity extends AppCompatActivity {
             switchEnable.setChecked(false);
         }
 
+        noticeLimit.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                databaseReference.child("Admin").child("usersdata").child(usersModel.getUserId()).child("noticeLimit").setValue(s);
+            }
+        });
 
 
         switchEnable.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {

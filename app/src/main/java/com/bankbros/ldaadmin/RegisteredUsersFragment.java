@@ -69,7 +69,7 @@ public class RegisteredUsersFragment extends Fragment {
         selectedHolders = new ArrayList<>();
         usersRecyclerView = v.findViewById(R.id.rv_account_holders);
         layoutManager = new LinearLayoutManager(getContext());
-        usersRecyclerViewAdapter = new HoldersRecyclerViewAdapter(getContext(),usersArrayList);
+        usersRecyclerViewAdapter = new HoldersRecyclerViewAdapter(getContext(),usersArrayList,0);
         usersRecyclerView.setLayoutManager(layoutManager);
         usersRecyclerView.setAdapter(usersRecyclerViewAdapter);
 

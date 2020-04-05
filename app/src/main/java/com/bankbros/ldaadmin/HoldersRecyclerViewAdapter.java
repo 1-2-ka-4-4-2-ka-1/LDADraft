@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -18,6 +19,7 @@ public class HoldersRecyclerViewAdapter extends RecyclerView.Adapter<HoldersRecy
 
 
     private ArrayList<RegisteredUsersModel> mItemsList;
+    private int type;
     Context context;
 
     private OnTeacherClickListener mListener;
@@ -39,7 +41,7 @@ public class HoldersRecyclerViewAdapter extends RecyclerView.Adapter<HoldersRecy
         public TextView mUserName;
         public TextView mUserEmail;
         public TextView mRegisterDate;
-
+        public CardView mActive;
 
 
         public UsersViewHolder(@NonNull final View itemView, final OnTeacherClickListener listener) {
@@ -48,7 +50,7 @@ public class HoldersRecyclerViewAdapter extends RecyclerView.Adapter<HoldersRecy
             mUserName=itemView.findViewById(R.id.tv_user_name);
             mUserEmail=itemView.findViewById(R.id.tv_user_email);
             mRegisterDate=itemView.findViewById(R.id.tv_user_date);
-
+            mActive =itemView.findViewById(R.id.cv_show_active);
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -67,12 +69,12 @@ public class HoldersRecyclerViewAdapter extends RecyclerView.Adapter<HoldersRecy
     }
 
 
-    public HoldersRecyclerViewAdapter(Context context,ArrayList<RegisteredUsersModel> itemsList){
+    public HoldersRecyclerViewAdapter(Context context,ArrayList<RegisteredUsersModel> itemsList, int type){
 
        this.mItemsList =  new ArrayList<>();
        mItemsList =itemsList;
        this.context = context;
-
+       this.type = type;
     }
 
     @NonNull
@@ -92,8 +94,17 @@ public class HoldersRecyclerViewAdapter extends RecyclerView.Adapter<HoldersRecy
         UsersViewHolder.mUserName.setText(current_item.getUserName());
         UsersViewHolder.mUserEmail.setText(current_item.getUserEmail());
         UsersViewHolder.mRegisterDate.setText(current_item.getDateRegistered());
-        
-        
+
+       if(type == 1) {
+           if (current_item.getNotificationcount() > 0)
+               UsersViewHolder.mActive.setCardBackgroundColor(Color.RED);
+           else UsersViewHolder.mActive.setCardBackgroundColor(Color.WHITE);
+       }
+       else {
+           UsersViewHolder.mActive.setVisibility(View.INVISIBLE);
+
+       }
+
         if(current_item.isUserEnabled())
         {
            UsersViewHolder.mUserName.setTextColor(ContextCompat.getColor(context, R.color.colorPrimary));

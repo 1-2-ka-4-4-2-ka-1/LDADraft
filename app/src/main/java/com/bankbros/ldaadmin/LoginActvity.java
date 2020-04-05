@@ -158,6 +158,9 @@ public class LoginActvity extends AppCompatActivity {
                             },5000);
 
 
+                        }else {
+                            Intent intent = new Intent(LoginActvity.this,DashBoardActivity.class);
+                            startActivity(intent);
                         }
                     }
 

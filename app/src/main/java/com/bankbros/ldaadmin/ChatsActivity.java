@@ -24,9 +24,14 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class ChatsActivity extends AppCompatActivity {
 
@@ -70,8 +75,12 @@ public class ChatsActivity extends AppCompatActivity {
         messageScrollView = findViewById(R.id.scrl_chat_scroll_view);
 
         setupClickListeners();
-
-
+        messageScrollView.post(new Runnable() {
+            public void run() {
+                messageScrollView.fullScroll(messageScrollView.FOCUS_DOWN);
+            }
+        });
+//        messageScrollView.scrollTo(0, messageScrollView.getTop());
 
     }
 
@@ -81,10 +90,51 @@ public class ChatsActivity extends AppCompatActivity {
         sendMessage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                doSendMessage( messageBox.getText().toString());
+
+
+                databaseReference.child("Admin").child("NotificationTokens").child(usersModel.getUserId()).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                        if(dataSnapshot == null || dataSnapshot.getValue() == null) {
+                            doSendMessage( messageBox.getText().toString());
+                            return;
+                        }
+
+                        String token = dataSnapshot.getValue().toString();
+                        Log.i("Token", "onDataChange: "+token);
+                        MessagePostApi messagePostApi = MessagePostApi.retrofit.create(MessagePostApi.class);
+                        Data newdata = new Data("New Message from Admin ",messageBox.getText().toString());
+                        MessageApi messagePostApi1 = new MessageApi(newdata,token);
+                        Call<String> call = messagePostApi.postMessage(messagePostApi1);
+                        call.enqueue(new Callback<String>() {
+                            @Override
+                            public void onResponse(Call<String> call, Response<String> response) {
+                                Log.i("Success", "onFailure: "+response.message()+response);
+
+                            }
+
+                            @Override
+                            public void onFailure(Call<String> call, Throwable t) {
+                                Log.i("Error", "onFailure: "+t.getMessage());
+                            }
+                        });
+
+                        doSendMessage( messageBox.getText().toString());
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
+
+
+
 
             }
         });
+
 
         chatRefAdmin.addChildEventListener(new ChildEventListener() {
             @Override
@@ -95,10 +145,10 @@ public class ChatsActivity extends AppCompatActivity {
                 String userName = map.get("user").toString();
 
                 if(userName.equals("Admin")){
-                    appendMessageUser("You-\n" + message, 2);
+                    appendMessageUser("" + message, 2);
                 }
                 else{
-                    appendMessageUser("User-" + "\n" + message, 1);
+                    appendMessageUser("" + message, 1);
                 }
 
                 Log.i("count-------", "onChildAdded: ");
@@ -169,6 +219,7 @@ public class ChatsActivity extends AppCompatActivity {
         tempQuestionTextView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         tempQuestionTextView.setPadding(40,25,40,25);
         tempQuestionTextView.setTextSize(20);
+        tempQuestionTextView.setMaxWidth(550);
         tempQuestionTextView.setTextColor(Color.BLACK);
         tempQuestionTextView.setText(message);
         relativeLayout.addView(tempQuestionTextView);
@@ -176,7 +227,6 @@ public class ChatsActivity extends AppCompatActivity {
         if(type == 1) {
             relativeLayout.setBackgroundResource(R.drawable.chat_bubble_incoming);
             relativeLayoutContainer.setGravity(Gravity.LEFT);
-
         }
         else {
             relativeLayout.setBackgroundResource(R.drawable.chat_bubble_outgoing);
@@ -186,8 +236,12 @@ public class ChatsActivity extends AppCompatActivity {
         relativeLayoutContainer.addView(relativeLayout);
         messagesAreaLayout.addView(relativeLayoutContainer);
 
-        messageScrollView.scrollTo(0, messageScrollView.getBottom());
-
+//        messageScrollView.scrollTo(0, messageScrollView.getTop());
+        messageScrollView.post(new Runnable() {
+            public void run() {
+                messageScrollView.fullScroll(messageScrollView.FOCUS_DOWN);
+            }
+        });
     }
 
 
