@@ -6,6 +6,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -16,6 +17,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -28,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Objects;
 
 
 /**
@@ -69,8 +72,8 @@ public class ChatsFragment extends Fragment {
         usersArrayList = new ArrayList<>();
         selectedHolders = new ArrayList<>();
         usersRecyclerView = v.findViewById(R.id.rv_account_holders);
-        layoutManager = new LinearLayoutManager(getContext());
-        usersRecyclerViewAdapter = new HoldersRecyclerViewAdapter(getContext(),usersArrayList,1);
+        layoutManager = new LinearLayoutManager(getActivity());
+        usersRecyclerViewAdapter = new HoldersRecyclerViewAdapter(getActivity(),usersArrayList,1);
         usersRecyclerView.setLayoutManager(layoutManager);
         usersRecyclerView.setAdapter(usersRecyclerViewAdapter);
 
@@ -152,9 +155,9 @@ public class ChatsFragment extends Fragment {
 
                 for(DataSnapshot userSnapShot : dataSnapshot.getChildren()){
                     if(!val.trim().equals("")){
-                        if(userSnapShot.child("userEmail").getValue().toString().toLowerCase().contains(val.toLowerCase())  || userSnapShot.child("userName").getValue().toString().contains(val)){
+                        if(Objects.requireNonNull(userSnapShot.child("userEmail").getValue()).toString().toLowerCase().contains(val.toLowerCase())  || userSnapShot.child("userName").getValue().toString().contains(val)){
 
-                            Log.i("====", "onDataChange: "+userSnapShot.child("userEmail").getValue().toString());
+                            Log.i("====", "onDataChange: "+ Objects.requireNonNull(userSnapShot.child("userEmail").getValue()).toString());
                             RegisteredUsersModel  holderSearchModel = (userSnapShot.getValue(RegisteredUsersModel.class));
                             usersArrayList.add(holderSearchModel);
                             Counter++;
@@ -172,7 +175,7 @@ public class ChatsFragment extends Fragment {
                 }
                 Collections.sort(usersArrayList,new CustomComparator());
                 usersRecyclerViewAdapter.notifyDataSetChanged();
-                Log.i("sorting", "onDataChange: "+usersArrayList.get(0).getNotificationcount());
+//                Log.i("sorting", "onDataChange: "+usersArrayList.get(0).getNotificationcount());
             }
 
             @Override

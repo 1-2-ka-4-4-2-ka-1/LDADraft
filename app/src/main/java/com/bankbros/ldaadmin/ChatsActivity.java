@@ -17,6 +17,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
@@ -26,7 +27,10 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import retrofit2.Call;
@@ -48,6 +52,7 @@ public class ChatsActivity extends AppCompatActivity {
     private  DatabaseReference chatRefAdmin;
 
     private RegisteredUsersModel usersModel;
+    private ImageView clearChat;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,7 +78,7 @@ public class ChatsActivity extends AppCompatActivity {
         messageBox = findViewById(R.id.ed_message_box);
         messagesAreaLayout = findViewById(R.id.messages_container);
         messageScrollView = findViewById(R.id.scrl_chat_scroll_view);
-
+        clearChat = findViewById(R.id.iv_clear_messages);
         setupClickListeners();
         messageScrollView.post(new Runnable() {
             public void run() {
@@ -136,6 +141,15 @@ public class ChatsActivity extends AppCompatActivity {
         });
 
 
+        clearChat.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                chatRefAdmin.setValue(null);
+                Toast.makeText(ChatsActivity.this, "Cleared", Toast.LENGTH_SHORT).show();
+                messagesAreaLayout.removeAllViews();
+            }
+        });
+
         chatRefAdmin.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
@@ -144,11 +158,14 @@ public class ChatsActivity extends AppCompatActivity {
                 String message = map.get("message").toString();
                 String userName = map.get("user").toString();
 
+                String time = message.substring(message.length()-12);
+                message = message.substring(0,message.length()-12);
+
                 if(userName.equals("Admin")){
-                    appendMessageUser("" + message, 2);
+                    appendMessageUser("" + message, 2 ,time);
                 }
                 else{
-                    appendMessageUser("" + message, 1);
+                    appendMessageUser("" + message, 1 ,time);
                 }
 
                 Log.i("count-------", "onChildAdded: ");
@@ -177,10 +194,14 @@ public class ChatsActivity extends AppCompatActivity {
 
     }
 
+    private String date;
     public void doSendMessage(String messageText){
+
+        date = new SimpleDateFormat("hh:mm:ss a", Locale.getDefault()).format(new Date());
+
         if(!messageText.equals("")){
             Map<String, String> map = new HashMap<String, String>();
-            map.put("message", messageText);
+            map.put("message", messageText+" "+date);
             map.put("user", "Admin");
             chatRef.push().setValue(map);
             chatRefAdmin.push().setValue(map);
@@ -191,7 +212,7 @@ public class ChatsActivity extends AppCompatActivity {
     }
 
 
-    public void appendMessageUser(String message , int type){
+    public void appendMessageUser(String message , int type , String time){
 
 
 
@@ -214,15 +235,33 @@ public class ChatsActivity extends AppCompatActivity {
         );
         params.setMargins(15,15,15,15);
         relativeLayout.setLayoutParams(params);
+        relativeLayout.setMinimumWidth(250);
+
+        LinearLayout linearLayout = new LinearLayout(ChatsActivity.this);
+        linearLayout.setOrientation(LinearLayout.VERTICAL);
+
 
         TextView tempQuestionTextView = new TextView(ChatsActivity.this);
         tempQuestionTextView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        tempQuestionTextView.setPadding(40,25,40,25);
-        tempQuestionTextView.setTextSize(20);
+        tempQuestionTextView.setPadding(45,25,40,25);
         tempQuestionTextView.setMaxWidth(550);
+        tempQuestionTextView.setTextSize(12);
         tempQuestionTextView.setTextColor(Color.BLACK);
         tempQuestionTextView.setText(message);
-        relativeLayout.addView(tempQuestionTextView);
+        linearLayout.addView(tempQuestionTextView);
+
+
+
+        TextView tempTime = new TextView(ChatsActivity.this);
+        tempTime.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        tempTime.setPadding(40,4,4,4);
+        tempTime.setMaxWidth(550);
+        tempTime.setTextSize(8);
+        tempTime.setTextColor(Color.GRAY);
+        tempTime.setText(time);
+        linearLayout.addView(tempTime);
+
+        relativeLayout.addView(linearLayout);
 
         if(type == 1) {
             relativeLayout.setBackgroundResource(R.drawable.chat_bubble_incoming);

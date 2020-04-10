@@ -74,6 +74,9 @@ public class RegisteredUsersFragment extends Fragment {
         usersRecyclerView.setAdapter(usersRecyclerViewAdapter);
 
 
+
+
+
         usersRecyclerViewAdapter.setOnTeacherClickListener(new HoldersRecyclerViewAdapter.OnTeacherClickListener() {
             @Override
             public void onHolderClicked(int Position) {
@@ -86,6 +89,9 @@ public class RegisteredUsersFragment extends Fragment {
             public void onHolderSelected(int Position) {
 
             }
+
+
+
         });
 
 

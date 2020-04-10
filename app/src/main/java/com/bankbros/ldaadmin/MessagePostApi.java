@@ -17,7 +17,7 @@ public interface MessagePostApi {
 
     @Headers({
             "Content-Type: application/json",
-            "Authorization:key=AAAAMsag9_g:APA91bG7cTIlOfsNKDwgmv0Z_cghq5Z1t-N5Ti_ECY9Y67SMD-0ARG2Z0dGakV6WvUV33i3TkwfBd5UoLQlEP_H6ux5EkXmSv9wNB0Fc4IAVurll-oIbKwOAwxKP0zuy4D9c_9lOOw61"
+            "Authorization:key=AAAAm9YL944:APA91bF8RSHroL__LHEoGFMYwWlv-1MrpLRc_fr_q92-7pOmmWGpVdrESVmF8H-N80SMJHjfr11PEW-imST5DUdaXwz9wunFM85kqTGzJQ5qWZLXFKjSJG2lbtvyCI5ihbvWaD0PPZGY"
     })
     @POST("send")
     Call<String> postMessage(@Body MessageApi data);

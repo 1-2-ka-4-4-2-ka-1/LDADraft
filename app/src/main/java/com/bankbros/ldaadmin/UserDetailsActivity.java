@@ -84,7 +84,7 @@ public class UserDetailsActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable s) {
-                databaseReference.child("Admin").child("usersdata").child(usersModel.getUserId()).child("noticeLimit").setValue(s);
+                databaseReference.child("Admin").child("usersdata").child(usersModel.getUserId()).child("noticeLimit").setValue(s.toString());
             }
         });
 

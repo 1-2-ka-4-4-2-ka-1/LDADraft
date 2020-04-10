@@ -20,6 +20,9 @@ import androidx.core.app.NotificationManagerCompat;
 import com.bankbros.ldaadmin.ChatsFragment;
 import com.bankbros.ldaadmin.DashBoardActivity;
 import com.bankbros.ldaadmin.R;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
@@ -42,15 +45,16 @@ public class NewFirebaseInstanceIdService extends FirebaseMessagingService {
 
         if(checkApp())
             return;
+        if(FirebaseAuth.getInstance().getCurrentUser()!= null)
+        if (remoteMessage.getData() == null || FirebaseAuth.getInstance().getCurrentUser().getEmail() == null) {
+            return;
+        }
+        Log.i("New", "onMessageReceived: "+"Notification");
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+            sendNotification(remoteMessage);
+        }else {
+            sendNotification26(remoteMessage);
 
-        if(remoteMessage.getData()!=null)
-        {
-            Log.i("New", "onMessageReceived: "+"Notification");
-            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
-                sendNotification(remoteMessage);
-            }else {
-                sendNotification26(remoteMessage);
-            }
         }
     }
 
@@ -59,17 +63,23 @@ public class NewFirebaseInstanceIdService extends FirebaseMessagingService {
                 .getSystemService(ACTIVITY_SERVICE);
 
         // get the info from the currently running task
-        List<ActivityManager.RunningTaskInfo> taskInfo = am.getRunningTasks(1);
+        List<ActivityManager.RunningTaskInfo> taskInfo = null;
+        if (am != null) {
+            taskInfo = am.getRunningTasks(1);
+        }
 
         ComponentName componentInfo = null;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
             componentInfo = taskInfo.get(0).topActivity;
         }
-        if (componentInfo.getPackageName().equalsIgnoreCase("com.bankbros.ldaadmin")) {
-            return true;
-        } else {
-            return false;
+        if (componentInfo != null) {
+            if (componentInfo.getPackageName().equalsIgnoreCase("com.bankbros.ldaadmin")) {
+                return true;
+            } else {
+                return false;
+            }
         }
+        return false;
     }
 
 
@@ -86,7 +96,9 @@ public class NewFirebaseInstanceIdService extends FirebaseMessagingService {
             notificationChannel = new NotificationChannel("Message Notifications", "Message", NotificationManager.IMPORTANCE_HIGH);
 
             NotificationManager notificationManager = getSystemService(NotificationManager.class);
-            notificationManager.createNotificationChannel(notificationChannel);
+            if (notificationManager != null) {
+                notificationManager.createNotificationChannel(notificationChannel);
+            }
 
             showNotification(title,content);
         }
@@ -111,11 +123,18 @@ public class NewFirebaseInstanceIdService extends FirebaseMessagingService {
                 .setContentIntent(pendingIntent)
                 .build();
         notification.notify();
+
+
+
     }
 
     public void sendTokenToServer(String token){
         Log.d("Token", "sendTokenToServer: "+token);
-//        Toast.makeText(this, ""+token, Toast.LENGTH_SHORT).show();
+
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference databaseReference = database.getReference();
+        databaseReference.child("Admin").child("AdminToken").setValue(token);
+ //        Toast.makeText(this, ""+token, Toast.LENGTH_SHORT).show();
     }
 
 //    @Override

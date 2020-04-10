@@ -30,6 +30,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 public class LoginActvity extends AppCompatActivity {
 
@@ -67,8 +68,8 @@ public class LoginActvity extends AppCompatActivity {
 
     public void doLogin(){
         List<AuthUI.IdpConfig> providers = Arrays.asList(
-                new AuthUI.IdpConfig.EmailBuilder().build(),
-                new AuthUI.IdpConfig.GoogleBuilder().build()
+                new AuthUI.IdpConfig.EmailBuilder().build()
+//                new AuthUI.IdpConfig.GoogleBuilder().build()
         );
 
         Intent intent = AuthUI.getInstance().createSignInIntentBuilder()
@@ -114,7 +115,7 @@ public class LoginActvity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == STORAGE_PERMISSION_CODE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(this, "Permission granted", Toast.LENGTH_SHORT);
+                Toast.makeText(this, "Permission granted", Toast.LENGTH_SHORT).show();
                 doLogin();
             }
         }
@@ -137,15 +138,15 @@ public class LoginActvity extends AppCompatActivity {
                     public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
 
 
-                        adminId = dataSnapshot.getValue().toString();
-                        Log.i("id", "onChildAdded: "+dataSnapshot.getValue().toString());
+                        adminId = Objects.requireNonNull(dataSnapshot.getValue()).toString();
+                        Log.i("id", "onChildAdded: "+dataSnapshot.getValue().toString()+user.getEmail());
 
                         if(!adminId.equals(FirebaseAuth.getInstance().getCurrentUser().getEmail())) {
                             Toast.makeText(getBaseContext(), "You are not authorized as admin", Toast.LENGTH_SHORT).show();
                             Log.i("id", "onChildAdded: "+"logout");
                             user.delete();
 
-                            ((ActivityManager) LoginActvity.this.getSystemService(ACTIVITY_SERVICE))
+                            ((ActivityManager) Objects.requireNonNull(LoginActvity.this.getSystemService(ACTIVITY_SERVICE)))
                                     .clearApplicationUserData();
 
                             Handler handler = new Handler();
@@ -153,7 +154,7 @@ public class LoginActvity extends AppCompatActivity {
                                 @Override
                                 public void run() {
 
-                                  //  LoginActvity.this.finish();
+                                    LoginActvity.this.finish();
                                 }
                             },5000);
 

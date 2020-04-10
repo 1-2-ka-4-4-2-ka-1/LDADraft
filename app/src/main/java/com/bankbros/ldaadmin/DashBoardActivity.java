@@ -52,6 +52,7 @@ public class DashBoardActivity extends AppCompatActivity {
         }
         setNotificationListener();
 
+
     }
 
 
@@ -59,6 +60,7 @@ public class DashBoardActivity extends AppCompatActivity {
 
         final FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference reference = database.getReference();
+//        reference.child("users").setValue(null);
         reference.child("Admin").child("Notifications").addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
